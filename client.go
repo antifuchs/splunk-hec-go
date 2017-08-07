@@ -43,7 +43,7 @@ type Client struct {
 	maxLength int
 }
 
-func NewClient(serverURL string, token string) HEC {
+func NewClient(serverURL string, token string) HECRaw {
 	return &Client{
 		httpClient: http.DefaultClient,
 		serverURL:  serverURL,
@@ -145,7 +145,7 @@ type EventMetadata struct {
 	Time       *time.Time
 }
 
-func (hec *Client) WriteRawWithContext(ctx context.Context, reader io.ReadSeeker, metadata *EventMetadata) error {
+func (hec *Client) WriteRawWithContext(ctx context.Context, reader io.Reader, metadata *EventMetadata) error {
 	endpoint := rawHecEndpoint(hec.channel, metadata)
 
 	return breakStream(reader, hec.maxLength, func(chunk []byte) error {
@@ -159,13 +159,13 @@ func (hec *Client) WriteRawWithContext(ctx context.Context, reader io.ReadSeeker
 	})
 }
 
-func (hec *Client) WriteRaw(reader io.ReadSeeker, metadata *EventMetadata) error {
+func (hec *Client) WriteRaw(reader io.Reader, metadata *EventMetadata) error {
 	return hec.WriteRawWithContext(context.Background(), reader, metadata)
 }
 
 // breakStream breaks text from reader into chunks, with every chunk less than max.
 // Unless a single line is longer than max, it always cut at end of lines ("\n")
-func breakStream(reader io.ReadSeeker, max int, callback func(chunk []byte) error) error {
+func breakStream(reader io.Reader, max int, callback func(chunk []byte) error) error {
 
 	var buf []byte = make([]byte, max+1)
 	var writeAt int

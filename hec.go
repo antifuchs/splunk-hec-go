@@ -17,7 +17,22 @@ type HEC interface {
 
 	// WriteBatch writes multiple events via HCE batch mode
 	WriteBatch(events []*Event) error
+}
 
-	// WriteRaw writes raw data stream via HEC raw mode
+// ClusteredHECRaw is an HEC interface that can submit raw event data
+// to nodes in a splunk cluster.
+type ClusteredHECRaw interface {
+	HEC
+	// WriteRaw writes raw data stream via HEC raw mode; if it
+	// receives an error from the upstream server, it rewinds the
+	// input reader and sends to a different server in the cluster.
 	WriteRaw(reader io.ReadSeeker, metadata *EventMetadata) error
+}
+
+// HECRaw is an HEC submission interface that can submit raw event
+// data.
+type HECRaw interface {
+	HEC
+	// WriteRaw writes raw data stream via HEC raw mode
+	WriteRaw(reader io.Reader, metadata *EventMetadata) error
 }

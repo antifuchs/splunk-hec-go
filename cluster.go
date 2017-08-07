@@ -20,7 +20,7 @@ type Cluster struct {
 	maxRetries int
 }
 
-func NewCluster(serverURLs []string, token string) HEC {
+func NewCluster(serverURLs []string, token string) ClusteredHECRaw {
 	channel := uuid.NewV4().String()
 	clients := make([]*Client, len(serverURLs))
 	for i, serverURL := range serverURLs {
